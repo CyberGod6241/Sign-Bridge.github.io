@@ -1,112 +1,584 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sign-Bridge</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SignBridge Pro | Learn & Teach Sign Language</title>
+  <link rel="icon" href="logo.png" type="image/x-icon">
+  <link rel="apple-touch-icon" href="logo.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3b82f6',
+            secondary: '#1d4ed8',
+            accent: '#10b981'
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Poppins', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/bac30eaa4e.js" crossorigin="anonymous"></script>
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.6s ease-out forwards;
+    }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      background-color: #3b82f6;
+      bottom: -4px;
+      left: 0;
+      transform: scaleX(0);
+      transform-origin: right;
+      transition: transform 0.3s ease;
+    }
+    .nav-link:hover::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+    .shine-effect::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+      );
+      transition: 0.5s;
+    }
+    .shine-effect:hover::before {
+      left: 100%;
+    }
+
+    /* Load screen styles */
+    #load {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease;
+    }
+    #load.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
 </head>
-<body>
-  <header class="navbar">
-    <div class="logo">
-      <!-- Replace with your own SVG/PNG logo -->
-      <img src="logo.png" alt="Sign-Bridge Logo" />
-      <div class="tagline">
-        connecting hands<br />
-        Building understanding
+<body class="font-sans bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-300">
+ <!-- From Uiverse.io by Javierrocadev --> 
+     <div id="load" class="flex flex-row gap-2 z-100">
+        <div class="w-4 h-4 rounded-full bg-blue-700 animate-bounce [animation-delay:.3s]"></div>
+        <div class="w-4 h-4 rounded-full bg-blue-700 animate-bounce [animation-delay:.2s]"></div>
+        <div class="w-4 h-4 rounded-full bg-blue-700 animate-bounce [animation-delay:.3s]"></div>
+        <div class="w-4 h-4 rounded-full bg-blue-700 animate-bounce [animation-delay:.2s]"></div>
+     </div>
+  <!-- Navigation -->
+  <header class="fixed w-full z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 transition-all duration-300">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 md:h-20">
+        <!-- Logo -->
+        <div class="flex items-center">
+          <img src="logo.png" alt="Logo" class="h-10 md:h-12">
+          <span class="ml-2 text-xs md:text-sm font-bold text-primary dark:text-accent">
+            Connecting Hands<br>Building Understanding
+          </span>
+        </div>
+
+        <!-- Desktop Navigation -->
+        <nav class="hidden md:flex items-center space-x-8">
+          <a href="#home" class="nav-link relative font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-accent transition-colors">Home</a>
+          <a href="#features" class="nav-link relative font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-accent transition-colors">Features</a>
+          <a href="#courses" class="nav-link relative font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-accent transition-colors">Courses</a>
+          <a href="#teach" class="nav-link relative font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-accent transition-colors">Teach With Us</a>
+        </nav>
+
+        <!-- CTA & Theme Toggle -->
+        <div class="flex items-center space-x-4">
+          <button class="hidden md:flex items-center px-5 py-2 bg-primary hover:bg-secondary text-white font-medium rounded-full transition-all duration-300 shadow-lg hover:shadow-xl shine-effect relative overflow-hidden">
+            Start Learning
+            <i class="fas fa-arrow-right ml-2"></i>
+          </button>
+          
+          <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+            <i class="fas fa-moon dark:hidden"></i>
+            <i class="fas fa-sun hidden dark:block"></i>
+          </button>
+          
+          <!-- Mobile menu button -->
+          <button id="mobile-menu-button" class="md:hidden p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700">
+            <i class="fas fa-bars"></i>
+          </button>
+        </div>
       </div>
     </div>
-    <nav class="nav-links">
-      <ul>
-        <li><a href="#home">Home</a></li>
-        <li><a href="#about">About</a></li>
-        <li><a href="#learn">Learn</a></li>
-        <li><a href="#teacher">Become a teacher</a></li>
-      </ul>
-    </nav>
-    <a href="#learn" class="btn cta">Start Learning Now</a>
-    <div id="theme-toggle" class="theme-toggle">🌙</div>
-    <div id="hamburger" class="hamburger">
-      <span></span><span></span><span></span>
+
+    <!-- Mobile Navigation -->
+    <div id="mobile-menu" class="md:hidden hidden bg-white dark:bg-gray-800 shadow-lg">
+      <div class="container mx-auto px-4 py-3 space-y-3">
+        <a href="#home" class="block px-3 py-2 rounded-md font-medium hover:bg-gray-100 dark:hover:bg-gray-700">Home</a>
+        <a href="#features" class="block px-3 py-2 rounded-md font-medium hover:bg-gray-100 dark:hover:bg-gray-700">Features</a>
+        <a href="#courses" class="block px-3 py-2 rounded-md font-medium hover:bg-gray-100 dark:hover:bg-gray-700">Courses</a>
+        <a href="#teach" class="block px-3 py-2 rounded-md font-medium hover:bg-gray-100 dark:hover:bg-gray-700">Teach With Us</a>
+        <button class="w-full mt-2 px-4 py-2 bg-primary hover:bg-secondary text-white font-medium rounded-md transition-colors">
+          Start Learning
+        </button>
+      </div>
     </div>
   </header>
 
-  <!-- Mobile Menu -->
-  <div id="mobile-nav" class="mobile-nav">
-    <ul>
-      <li><a href="#home">Home</a></li>
-      <li><a href="#about">About</a></li>
-      <li><a href="#learn">Learn</a></li>
-      <li><a href="#teacher">Become a teacher</a></li>
-      <li><a href="#learn" class="btn cta">Start Learning</a></li>
-    </ul>
-  </div>
-
-  <!-- Hero -->
-  <section id="home" class="section hero">
-    <div class="hero-content">
-      <h1>Connecting the World Through Sign Language</h1>
-      <p>Learn and teach sign language through interactive videos, anytime, anywhere.</p>
-      <a href="#learn" class="btn">Start Learning Now</a>
-    </div>
-  </section>
-
-  <!-- About -->
-  <section id="about" class="section fade-in">
-    <h2>About Us</h2>
-    <p>
-      Sign-Bridge makes sign-language learning accessible, inclusive, and empowering—
-      for both hearing and deaf communities.
-    </p>
-  </section>
-
-  <!-- How It Works -->
-  <section id="learn" class="section fade-in">
-    <h2>How It Works</h2>
-    <div class="steps">
-      <div class="step">
-        <h3>1. Browse Courses</h3>
-        <p>Explore video lessons from certified instructors.</p>
+  <!-- Hero Section -->
+  <section id="home" class="pt-32 pb-20 md:pt-40 md:pb-28 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-800 dark:to-gray-900">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-4xl mx-auto text-center animate-fade-in">
+        <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold font-display leading-tight mb-6">
+          Learn <span class="text-primary">Sign Language</span> the Right Way
+        </h1>
+        <p class="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
+          Master sign language through interactive lessons taught by native signers. Perfect for beginners and advanced learners alike.
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+          <button class="px-8 py-3 bg-primary hover:bg-secondary text-white font-medium rounded-full transition-all shadow-lg hover:shadow-xl">
+            Start Free Trial
+          </button>
+          <button class="px-8 py-3 border border-gray-300 dark:border-gray-600 hover:border-primary dark:hover:border-accent text-gray-700 dark:text-gray-300 font-medium rounded-full transition-colors">
+            <i class="fas fa-play-circle mr-2"></i> Watch Demo
+          </button>
+        </div>
       </div>
-      <div class="step">
-        <h3>2. Learn at Your Pace</h3>
-        <p>Follow along with subtitles and gesture breakdowns.</p>
-      </div>
-      <div class="step">
-        <h3>3. Track Progress</h3>
-        <p>Earn certificates as you advance your skills.</p>
-      </div>
-      <div class="step">
-        <h3>4. Teach & Earn</h3>
-        <p>Upload your own lessons and generate income.</p>
+      
+      <div class="mt-16 max-w-5xl mx-auto rounded-xl overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-700">
+        <video src='video.mp4' alt="App Preview" class="w-full h-auto" autoplay loop muted playsinline>
       </div>
     </div>
   </section>
 
-  <!-- Become a Teacher -->
-  <section id="teacher" class="section fade-in">
-    <h2>Become a Teacher</h2>
-    <p>Share your expertise, reach a global audience, and earn revenue.</p>
-    <a href="#learn" class="btn">Upload Your First Lesson</a>
+  <!-- Features Section -->
+  <section id="features" class="py-20 bg-white dark:bg-gray-900">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold font-display mb-4">Why Choose SignBridge Pro?</h2>
+        <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          Our platform combines expert instruction with cutting-edge technology to deliver the best learning experience.
+        </p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Feature 1 -->
+        <div class="bg-gray-50 dark:bg-gray-800 p-8 rounded-xl hover:shadow-lg transition-shadow duration-300">
+          <div class="w-14 h-14 bg-primary/10 dark:bg-accent/10 rounded-lg flex items-center justify-center mb-6">
+            <i class="fas fa-video text-primary dark:text-accent text-2xl"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Interactive Lessons</h3>
+          <p class="text-gray-600 dark:text-gray-300">
+            Learn through high-quality video lessons with slow-motion playback and angle adjustments.
+          </p>
+        </div>
+        
+        <!-- Feature 2 -->
+        <div class="bg-gray-50 dark:bg-gray-800 p-8 rounded-xl hover:shadow-lg transition-shadow duration-300">
+          <div class="w-14 h-14 bg-primary/10 dark:bg-accent/10 rounded-lg flex items-center justify-center mb-6">
+            <i class="fas fa-chalkboard-teacher text-primary dark:text-accent text-2xl"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Native Instructors</h3>
+          <p class="text-gray-600 dark:text-gray-300">
+            Learn from deaf instructors and native signers who bring authentic language and culture.
+          </p>
+        </div>
+        
+        <!-- Feature 3 -->
+        <div class="bg-gray-50 dark:bg-gray-800 p-8 rounded-xl hover:shadow-lg transition-shadow duration-300">
+          <div class="w-14 h-14 bg-primary/10 dark:bg-accent/10 rounded-lg flex items-center justify-center mb-6">
+            <i class="fas fa-tasks text-primary dark:text-accent text-2xl"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Progress Tracking</h3>
+          <p class="text-gray-600 dark:text-gray-300">
+            Track your learning journey with personalized dashboards and achievement badges.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Courses Section -->
+  <section id="courses" class="py-20 bg-gray-50 dark:bg-gray-800">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold font-display mb-4">Popular Courses</h2>
+        <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          Start with beginner courses or advance your skills with specialized vocabulary.
+        </p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Course 1 -->
+        <div class="bg-white dark:bg-gray-900 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
+          <div class="h-48 bg-blue-100 dark:bg-gray-700 relative">
+            <img src="https://placehold.co/600x400?text=ASL+101" alt="ASL Basics" class="w-full h-full object-cover">
+            <div class="absolute top-4 left-4 bg-primary text-white px-3 py-1 rounded-full text-sm font-medium">
+              Beginner
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">ASL for Beginners</h3>
+            <p class="text-gray-600 dark:text-gray-300 mb-4">
+              Master the fundamentals of American Sign Language in just 4 weeks.
+            </p>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <i class="fas fa-star text-yellow-400 mr-1"></i>
+                <span class="font-medium">4.9</span>
+                <span class="text-gray-500 dark:text-gray-400 ml-1">(128)</span>
+              </div>
+              <button class="text-primary dark:text-accent font-medium hover:underline">View Course</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Course 2 -->
+        <div class="bg-white dark:bg-gray-900 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
+          <div class="h-48 bg-green-100 dark:bg-gray-700 relative">
+            <img src="https://placehold.co/600x400?text=ASL+201" alt="ASL Intermediate" class="w-full h-full object-cover">
+            <div class="absolute top-4 left-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+              Intermediate
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">ASL Conversation Skills</h3>
+            <p class="text-gray-600 dark:text-gray-300 mb-4">
+              Develop fluency for everyday conversations in American Sign Language.
+            </p>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <i class="fas fa-star text-yellow-400 mr-1"></i>
+                <span class="font-medium">4.8</span>
+                <span class="text-gray-500 dark:text-gray-400 ml-1">(92)</span>
+              </div>
+              <button class="text-primary dark:text-accent font-medium hover:underline">View Course</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Course 3 -->
+        <div class="bg-white dark:bg-gray-900 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
+          <div class="h-48 bg-purple-100 dark:bg-gray-700 relative">
+            <img src="https://placehold.co/600x400?text=Medical+ASL" alt="Medical ASL" class="w-full h-full object-cover">
+            <div class="absolute top-4 left-4 bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+              Advanced
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">Medical ASL Vocabulary</h3>
+            <p class="text-gray-600 dark:text-gray-300 mb-4">
+              Specialized signs for healthcare professionals and medical settings.
+            </p>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <i class="fas fa-star text-yellow-400 mr-1"></i>
+                <span class="font-medium">4.9</span>
+                <span class="text-gray-500 dark:text-gray-400 ml-1">(76)</span>
+              </div>
+              <button class="text-primary dark:text-accent font-medium hover:underline">View Course</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="text-center mt-12">
+        <button class="px-6 py-3 border border-primary dark:border-accent text-primary dark:text-accent font-medium rounded-full hover:bg-primary/10 dark:hover:bg-accent/10 transition-colors">
+          View All Courses
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Teach With Us Section -->
+  <section id="teach" class="py-20 bg-primary dark:bg-gray-800 text-white">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-5xl mx-auto">
+        <div class="md:flex items-center justify-between">
+          <div class="md:w-1/2 mb-10 md:mb-0">
+            <h2 class="text-3xl md:text-4xl font-bold font-display mb-6">Become an Instructor</h2>
+            <p class="text-lg mb-6 opacity-90">
+              Share your knowledge and earn income by teaching sign language on our platform. We handle the technology, you focus on teaching.
+            </p>
+            <button class="px-6 py-3 bg-white text-primary font-medium rounded-full hover:bg-gray-100 transition-colors">
+              Apply Now
+            </button>
+          </div>
+          
+          <div class="md:w-5/12 bg-white/10 backdrop-blur-sm p-8 rounded-2xl border border-white/20">
+            <h3 class="text-xl font-bold mb-4">Need help with your application?</h3>
+            <p class="text-sm opacity-80 mb-4">
+              Our AI assistant can help craft your instructor bio based on your experience.
+            </p>
+            <textarea class="w-full px-4 py-3 rounded-lg bg-white/20 placeholder-white/70 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white mb-3" rows="3" placeholder="Tell us about your teaching experience..."></textarea>
+            <button class="w-full px-4 py-3 bg-white text-primary font-medium rounded-lg hover:bg-gray-100 transition-colors">
+              Generate Bio
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="py-20 bg-white dark:bg-gray-900">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold font-display mb-4">What Our Students Say</h2>
+        <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          Join thousands of happy learners who have transformed their communication skills.
+        </p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Testimonial 1 -->
+        <div class="bg-gray-50 dark:bg-gray-800 p-8 rounded-xl">
+          <div class="flex items-center mb-4">
+            <div class="w-12 h-12 rounded-full overflow-hidden mr-4">
+              <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Sarah J." class="w-full h-full object-cover">
+            </div>
+            <div>
+              <h4 class="font-bold">Sarah J.</h4>
+              <div class="flex">
+                <i class="fas fa-star text-yellow-400"></i>
+                <i class="fas fa-star text-yellow-400"></i>
+                <i class="fas fa-star text-yellow-400"></i>
+                <i class="fas fa-star text-yellow-400"></i>
+                <i class="fas fa-star text-yellow-400"></i>
+              </div>
+            </div>
+          </div>
+          <p class="text-gray-600 dark:text-gray-300">
+            "As a teacher, I wanted to communicate better with my deaf students. SignBridge made learning ASL so accessible and fun!"
+          </p>
+        </div>
+        
+        <!-- Testimonial 2 -->
+        <div class="bg-gray-50 dark:bg-gray-800 p-8 rounded-xl">
+          <div class="flex items-center mb-4">
+            <div class="w-12 h-12 rounded-full overflow-hidden mr-4">
+              <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="Michael T." class="w-full h-full object-cover">
+            </div>
+            <div>
+              <h4 class="font-bold">Michael T.</h4>
+              <div class="flex">
+                <i class="fas fa-star text-yellow-400"></i>
+                <i class="fas fa-star text-yellow-400"></i>
+                <i class="fas fa-star text-yellow-400"></i>
+                <i class="fas fa-star text-yellow-400"></i>
+                <i class="fas fa-star text-yellow-400"></i>
+              </div>
+            </div>
+          </div>
+          <p class="text-gray-600 dark:text-gray-300">
+            "The video lessons are incredibly clear, and being able to slow them down helped me master difficult signs."
+          </p>
+        </div>
+        
+        <!-- Testimonial 3 -->
+        <div class="bg-gray-50 dark:bg-gray-800 p-8 rounded-xl">
+          <div class="flex items-center mb-4">
+            <div class="w-12 h-12 rounded-full overflow-hidden mr-4">
+              <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Priya K." class="w-full h-full object-cover">
+            </div>
+            <div>
+              <h4 class="font-bold">Priya K.</h4>
+              <div class="flex">
+                <i class="fas fa-star text-yellow-400"></i>
+                <i class="fas fa-star text-yellow-400"></i>
+                <i class="fas fa-star text-yellow-400"></i>
+                <i class="fas fa-star text-yellow-400"></i>
+                <i class="fas fa-star text-yellow-400"></i>
+              </div>
+            </div>
+          </div>
+          <p class="text-gray-600 dark:text-gray-300">
+            "I've tried other apps, but learning from native signers on SignBridge made all the difference in my fluency."
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="py-20 bg-gray-50 dark:bg-gray-800">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold font-display mb-4">Frequently Asked Questions</h2>
+        <p class="text-lg text-gray-600 dark:text-gray-300">
+          Can't find what you're looking for? <a href="#contact" class="text-primary dark:text-accent hover:underline">Contact our team</a>.
+        </p>
+      </div>
+      
+      <div class="space-y-4">
+        <!-- FAQ Item 1 -->
+        <div class="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+          <button class="faq-toggle w-full flex justify-between items-center p-6 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+            <h3 class="font-medium text-lg">How does the free trial work?</h3>
+            <i class="fas fa-chevron-down transition-transform duration-300"></i>
+          </button>
+          <div class="faq-content px-6 pb-6 hidden">
+            <p class="text-gray-600 dark:text-gray-300">
+              Our free trial gives you full access to all beginner courses for 7 days. No credit card required. After the trial, you can choose a subscription plan that fits your needs.
+            </p>
+          </div>
+        </div>
+        
+        <!-- FAQ Item 2 -->
+        <div class="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+          <button class="faq-toggle w-full flex justify-between items-center p-6 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+            <h3 class="font-medium text-lg">What sign languages do you offer?</h3>
+            <i class="fas fa-chevron-down transition-transform duration-300"></i>
+          </button>
+          <div class="faq-content px-6 pb-6 hidden">
+            <p class="text-gray-600 dark:text-gray-300">
+              We currently offer American Sign Language (ASL) and are expanding to include British Sign Language (BSL) and Auslan (Australian Sign Language) later this year.
+            </p>
+          </div>
+        </div>
+        
+        <!-- FAQ Item 3 -->
+        <div class="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+          <button class="faq-toggle w-full flex justify-between items-center p-6 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+            <h3 class="font-medium text-lg">Can I download lessons for offline use?</h3>
+            <i class="fas fa-chevron-down transition-transform duration-300"></i>
+          </button>
+          <div class="faq-content px-6 pb-6 hidden">
+            <p class="text-gray-600 dark:text-gray-300">
+              Yes! Our premium members can download lessons to their mobile devices for offline viewing. This feature is available on our iOS and Android apps.
+            </p>
+          </div>
+        </div>
+        
+        <!-- FAQ Item 4 -->
+        <div class="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+          <button class="faq-toggle w-full flex justify-between items-center p-6 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+            <h3 class="font-medium text-lg">How do I become an instructor?</h3>
+            <i class="fas fa-chevron-down transition-transform duration-300"></i>
+          </button>
+          <div class="faq-content px-6 pb-6 hidden">
+            <p class="text-gray-600 dark:text-gray-300">
+              We welcome native signers and certified instructors to join our team. Visit our "Teach With Us" section to apply. You'll need to submit a sample lesson and complete our instructor training program.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-20 bg-gradient-to-r from-primary to-secondary dark:from-gray-800 dark:to-gray-900 text-white">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-3xl md:text-4xl font-bold font-display mb-6">Ready to Start Your Sign Language Journey?</h2>
+      <p class="text-xl opacity-90 mb-8 max-w-2xl mx-auto">
+        Join thousands of learners and discover the joy of visual communication.
+      </p>
+      <div class="flex flex-col sm:flex-row justify-center gap-4">
+        <button class="px-8 py-4 bg-white text-primary font-bold rounded-full hover:bg-gray-100 transition-colors shadow-lg">
+          Get Started - It's Free
+        </button>
+        <button class="px-8 py-4 border-2 border-white text-white font-bold rounded-full hover:bg-white/10 transition-colors">
+          Talk to Our Team
+        </button>
+      </div>
+    </div>
   </section>
 
   <!-- Footer -->
-  <footer class="footer fade-in">
-    <div class="footer-links">
-      <a href="#terms">Terms of Service</a>
-      <a href="#privacy">Privacy Policy</a>
-      <a href="#faq">FAQs</a>
-      <a href="#contact">Contact</a>
-    </div>
-    <div class="social-icons">
-      <!-- Replace with your own SVG/icon set -->
-      <a href="#"><img src="fb.svg" alt="Facebook" /></a>
-      <a href="#"><img src="tw.svg" alt="Twitter" /></a>
-      <a href="#"><img src="ig.svg" alt="Instagram" /></a>
+  <footer class="bg-gray-900 text-gray-300 pt-16 pb-8">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+        
+        <!-- Column 1 -->
+        <div>
+          <h3 class="text-white font-bold text-lg mb-4">Quick Links</h3>
+          <ul class="space-y-2">
+            <li><a href="#" class="hover:text-white transition-colors">Home</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Courses</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Pricing</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Teach With Us</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Blog</a></li>
+          </ul>
+        </div>
+        
+        <!-- Column 2 -->
+        <div>
+          <h3 class="text-white font-bold text-lg mb-4">Support</h3>
+          <ul class="space-y-2">
+            <li><a href="#" class="hover:text-white transition-colors">Help Center</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Contact Us</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">FAQ</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">System Requirements</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Accessibility</a></li>
+          </ul>
+        </div>
+        
+        <!-- Column 3 -->
+        <div>
+          <h3 class="text-white font-bold text-lg mb-4">Legal</h3>
+          <ul class="space-y-2">
+            <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Terms of Service</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Cookie Policy</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Copyright</a></li>
+          </ul>
+        </div>
+           <!-- Column 4 -->
+        <div>
+          <img src="logo.png" alt="Logo" class="h-14 mb-4">
+          <p class="mb-4">
+            Making sign language education accessible to everyone, everywhere.
+          </p>
+          <div class="flex space-x-4">
+            <a href="#" class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
+              <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="#" class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="#" class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a href="#" class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
+              <i class="fab fa-youtube"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="pt-8 border-t border-gray-800 text-center text-sm">
+        <p>&copy; 2025 SignBridge Pro. All rights reserved.</p>
+      </div>
     </div>
   </footer>
-
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
-
