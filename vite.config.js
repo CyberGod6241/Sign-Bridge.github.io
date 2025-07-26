@@ -8,4 +8,5 @@ export default defineConfig({
     react(),
     tailwindcss(), // Add the tailwindcss plugin here
   ],
+  base: "/Sign-Bridge.github.io"
 });
