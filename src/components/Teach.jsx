@@ -1,6 +1,6 @@
 const Teach = () => {
   return (
-    <section id="teach" className="py-20 bg-primary dark:bg-gray-800 text-white">
+    <section id="teach" className="py-20 bg-primary dark:bg-gray-800 ">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
           <div className="md:flex items-center justify-between">
@@ -9,7 +9,7 @@ const Teach = () => {
               <p className="text-lg mb-6 opacity-90">
                 Share your knowledge and earn income by teaching sign language on our platform. We handle the technology, you focus on teaching.
               </p>
-              <button className="px-6 py-3 bg-white text-primary font-medium rounded-full hover:bg-gray-100 transition-colors">
+              <button className="px-6 py-3 bg-white text-primary font-medium rounded-full border-2 hover:bg-gray-100 transition-colors dark:border-white dark:bg-gray-800 dark:hover:bg-gray-700">
                 Apply Now
               </button>
             </div>
@@ -20,7 +20,7 @@ const Teach = () => {
                 Our AI assistant can help craft your instructor bio based on your experience.
               </p>
               <textarea className="w-full px-4 py-3 rounded-lg bg-white/20 placeholder-white/70 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white mb-3" rows="3" placeholder="Tell us about your teaching experience..."></textarea>
-              <button className="w-full px-4 py-3 bg-white text-primary font-medium rounded-lg hover:bg-gray-100 transition-colors">
+              <button className="w-full px-4 py-3 bg-white text-primary font-medium rounded-lg hover:bg-gray-100 transition-colors dark:text-black">
                 Generate Bio
               </button>
             </div>

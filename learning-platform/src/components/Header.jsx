@@ -10,15 +10,14 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 group">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
-              <span className="text-white font-bold text-lg">🤟</span>
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">SignLearn</h1>
-              <p className="text-xs text-gray-500">Master Sign Language</p>
-            </div>
-          </Link>
+      <div className="flex items-center">
+            <img src="/logo.png" alt="Logo" className="h-10 md:h-12" />
+            <span className="ml-2 text-xs md:text-sm font-bold text-primary dark:text-accent">
+              Connecting Hands
+              <br />
+              Building Understanding
+            </span>
+          </div>
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">

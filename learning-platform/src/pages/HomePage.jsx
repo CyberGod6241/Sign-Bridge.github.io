@@ -40,11 +40,12 @@ const HomePage = () => {
           }}
         ></div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+            <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
-            <div className="flex justify-center mb-6">
-              <div className="w-20 h-20 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/20">
-                <span className="text-4xl">🤟</span>
+            <div className="mb-8">
+              <div className="inline-flex items-center px-4 py-2 bg-white/10 rounded-full text-white/90 text-sm font-medium backdrop-blur-sm mb-6">
+                <Sparkles size={16} className="mr-2" />
+                Welcome to the future of sign language learning
               </div>
             </div>
 
@@ -57,7 +58,7 @@ const HomePage = () => {
             </h1>
 
             <p className="text-xl text-purple-100 mb-12 max-w-3xl mx-auto leading-relaxed">
-              Learn American Sign Language through interactive video lessons. Start with the basics and progress to advanced conversations with our comprehensive learning platform.
+              Learn Sign Language through interactive video lessons. Start with the basics and progress to advanced conversations with our comprehensive learning platform.
             </p>
 
             {/* Search Bar */}

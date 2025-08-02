@@ -5,7 +5,7 @@ export const signsData = {
       id: 'a1',
       name: 'Letter A',
       description: 'Learn how to sign the letter A in American Sign Language',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+      videoUrl: 'https://www.youtube.com/embed/8yBnjf2mz8g', // ASL Alphabet tutorial
       category: 'alphabet',
       difficulty: 'beginner'
     },
@@ -13,7 +13,7 @@ export const signsData = {
       id: 'a2',
       name: 'Letter B',
       description: 'Learn how to sign the letter B in American Sign Language',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+      videoUrl: 'https://www.youtube.com/embed/8yBnjf2mz8g', // ASL Alphabet tutorial
       category: 'alphabet',
       difficulty: 'beginner'
     },
@@ -21,7 +21,7 @@ export const signsData = {
       id: 'a3',
       name: 'Letter C',
       description: 'Learn how to sign the letter C in American Sign Language',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+      videoUrl: 'https://www.youtube.com/embed/8yBnjf2mz8g', // ASL Alphabet tutorial
       category: 'alphabet',
       difficulty: 'beginner'
     }
@@ -31,7 +31,7 @@ export const signsData = {
       id: 'g1',
       name: 'Hello',
       description: 'A friendly greeting used to say hello in sign language',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+      videoUrl: 'https://www.youtube.com/embed/4TZdKcijpro', // Basic ASL Greetings
       category: 'greetings',
       difficulty: 'beginner'
     },
@@ -39,7 +39,7 @@ export const signsData = {
       id: 'g2',
       name: 'Good Morning',
       description: 'How to wish someone a good morning in sign language',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+      videoUrl: 'https://www.youtube.com/embed/4TZdKcijpro', // Basic ASL Greetings
       category: 'greetings',
       difficulty: 'beginner'
     },
@@ -47,7 +47,7 @@ export const signsData = {
       id: 'g3',
       name: 'Nice to Meet You',
       description: 'Express pleasure in meeting someone new',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+      videoUrl: 'https://www.youtube.com/embed/4TZdKcijpro', // Basic ASL Greetings
       category: 'greetings',
       difficulty: 'intermediate'
     }
@@ -57,7 +57,7 @@ export const signsData = {
       id: 'p1',
       name: 'Please',
       description: 'Learn to say please politely in sign language',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4',
+      videoUrl: 'https://www.youtube.com/embed/7f0b8G2j5dY', // ASL Common Phrases
       category: 'phrases',
       difficulty: 'beginner'
     },
@@ -65,7 +65,7 @@ export const signsData = {
       id: 'p2',
       name: 'Thank You',
       description: 'Express gratitude with this essential sign',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
+      videoUrl: 'https://www.youtube.com/embed/7f0b8G2j5dY', // ASL Common Phrases
       category: 'phrases',
       difficulty: 'beginner'
     },
@@ -73,7 +73,7 @@ export const signsData = {
       id: 'p3',
       name: 'How Are You?',
       description: 'Ask someone about their wellbeing',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Subaru.mp4',
+      videoUrl: 'https://www.youtube.com/embed/7f0b8G2j5dY', // ASL Common Phrases
       category: 'phrases',
       difficulty: 'intermediate'
     }
@@ -83,7 +83,7 @@ export const signsData = {
       id: 'f1',
       name: 'Mother',
       description: 'Learn how to sign mother or mom',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+      videoUrl: 'https://www.youtube.com/embed/9Yt5ZLfA3tI', // ASL Family Signs
       category: 'family',
       difficulty: 'beginner'
     },
@@ -91,7 +91,7 @@ export const signsData = {
       id: 'f2',
       name: 'Father',
       description: 'Learn how to sign father or dad',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4',
+      videoUrl: 'https://www.youtube.com/embed/9Yt5ZLfA3tI', // ASL Family Signs
       category: 'family',
       difficulty: 'beginner'
     },
@@ -99,7 +99,7 @@ export const signsData = {
       id: 'f3',
       name: 'Sister',
       description: 'Learn how to sign sister',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4',
+      videoUrl: 'https://www.youtube.com/embed/9Yt5ZLfA3tI', // ASL Family Signs
       category: 'family',
       difficulty: 'beginner'
     }

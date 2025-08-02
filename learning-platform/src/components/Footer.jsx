@@ -40,7 +40,7 @@ const Footer = () => {
           </div>
              {/* Column 4 */}
           <div>
-            <img src="public/logo.png" alt="Logo" className="h-14 mb-4" />
+            <img src="/logo.png" alt="Logo" className="h-14 mb-4" />
             <p className="mb-4">
               Making sign language education accessible to everyone, everywhere.
             </p>

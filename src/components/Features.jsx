@@ -13,7 +13,7 @@ const Features = () => {
           {/* Feature 1 */}
           <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-xl hover:shadow-lg transition-shadow duration-300">
             <div className="w-14 h-14 bg-primary/10 dark:bg-accent/10 rounded-lg flex items-center justify-center mb-6">
-              <i className="fas fa-video text-primary dark:text-accent text-2xl"></i>
+              <i className="fas fa-video text-blue-500 dark:text-accent text-2xl"></i>
             </div>
             <h3 className="text-xl font-bold mb-3">Interactive Lessons</h3>
             <p className="text-gray-600 dark:text-gray-300">
@@ -24,7 +24,7 @@ const Features = () => {
           {/* Feature 2 */}
           <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-xl hover:shadow-lg transition-shadow duration-300">
             <div className="w-14 h-14 bg-primary/10 dark:bg-accent/10 rounded-lg flex items-center justify-center mb-6">
-              <i className="fas fa-chalkboard-teacher text-primary dark:text-accent text-2xl"></i>
+              <i className="fas fa-chalkboard-teacher text-blue-500 dark:text-accent text-2xl"></i>
             </div>
             <h3 className="text-xl font-bold mb-3">Native Instructors</h3>
             <p className="text-gray-600 dark:text-gray-300">
@@ -35,7 +35,7 @@ const Features = () => {
           {/* Feature 3 */}
           <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-xl hover:shadow-lg transition-shadow duration-300">
             <div className="w-14 h-14 bg-primary/10 dark:bg-accent/10 rounded-lg flex items-center justify-center mb-6">
-              <i className="fas fa-tasks text-primary dark:text-accent text-2xl"></i>
+              <i className="fas fa-tasks text-blue-500 dark:text-accent text-2xl"></i>
             </div>
             <h3 className="text-xl font-bold mb-3">Progress Tracking</h3>
             <p className="text-gray-600 dark:text-gray-300">

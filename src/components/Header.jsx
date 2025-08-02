@@ -32,7 +32,7 @@ const Header = () => {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <div className="flex items-center">
-            <img src="/logo.png" alt="Logo" className="h-10 md:h-12" />
+            <img src="public/logo.png" alt="Logo" className="h-10 md:h-12" />
             <span className="ml-2 text-xs md:text-sm font-bold text-primary dark:text-accent">
               Connecting Hands
               <br />
@@ -71,7 +71,7 @@ const Header = () => {
           {/* CTA & Theme Toggle */}
           <div className="flex items-center space-x-4">
             <a href="http://localhost:5174/">
-              <button className="hidden md:flex items-center px-5 py-2 bg-primary hover:bg-secondary text-blue font-medium rounded-full transition-all duration-300 shadow-lg hover:shadow-xl shine-effect relative overflow-hidden">
+              <button className="hidden md:flex items-center px-5 py-2 bg-secondary hover:bg-secondary text-blue font-medium rounded-full transition-all duration-300 shadow-lg hover:shadow-xl shine-effect relative overflow-hidden">
                 Start Learning
                 <i className="fas fa-arrow-right ml-2"></i>
               </button>
