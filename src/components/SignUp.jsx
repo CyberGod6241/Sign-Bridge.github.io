@@ -1,4 +1,5 @@
 import  { useState, useEffect } from 'react';
+import { saveUserProfile, saveOnboardingData } from '../Firebase/Firestore';
 import{
   signInWithGoogle,
   signInWithGoogleRedirect,
@@ -12,14 +13,272 @@ const Signup = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    agreeToTerms: false
+    agreeToTerms: false,
+    role: ''
   });
-  
+
+  const [showRoleSelection, setShowRoleSelection] = useState(true);
+const [selectedRole, setSelectedRole] = useState('');
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+const [currentQuestion, setCurrentQuestion] = useState(0);
+
+const [onboardingData, setOnboardingData] = useState({
+  experience: '',
+  certifications: [],
+  specializations: [],
+  teachingMode: '',
+  availability: '',
+  motivation: ''
+});
+
+
+const onboardingQuestions = [
+  {
+    id: 'experience',
+    title: 'Teaching Experience',
+    question: 'How long have you been teaching sign language?',
+    type: 'single',
+    options: [
+      { value: 'new', label: 'New to teaching (0-1 years)', icon: '🌱' },
+      { value: 'beginner', label: 'Beginner (1-3 years)', icon: '📚' },
+      { value: 'intermediate', label: 'Intermediate (3-5 years)', icon: '👨‍🏫' },
+      { value: 'experienced', label: 'Experienced (5+ years)', icon: '🏆' }
+    ]
+  },
+  {
+    id: 'certifications',
+    title: 'Certifications',
+    question: 'What certifications do you have?',
+    type: 'multiple',
+    options: [
+      { value: 'asl', label: 'ASL Certified', icon: '✋' },
+      { value: 'interpreter', label: 'Certified Interpreter', icon: '🗣️' },
+      { value: 'deaf_studies', label: 'Deaf Studies Degree', icon: '🎓' },
+      { value: 'teaching', label: 'Teaching Certificate', icon: '📜' },
+      { value: 'other', label: 'Other Certification', icon: '⭐' },
+      { value: 'none', label: 'No formal certification', icon: '💪' }
+    ]
+  },
+  {
+    id: 'specializations',
+    title: 'Areas of Expertise',
+    question: 'Which areas would you like to teach?',
+    type: 'multiple',
+    options: [
+      { value: 'basic_asl', label: 'Basic ASL', icon: '👋' },
+      { value: 'intermediate_asl', label: 'Intermediate ASL', icon: '🤟' },
+      { value: 'advanced_asl', label: 'Advanced ASL', icon: '🙌' },
+      { value: 'fingerspelling', label: 'Fingerspelling', icon: '🔤' },
+      { value: 'deaf_culture', label: 'Deaf Culture', icon: '🏛️' },
+      { value: 'business_signs', label: 'Business/Professional Signs', icon: '💼' },
+      { value: 'medical_signs', label: 'Medical Signs', icon: '🏥' },
+      { value: 'kids_signs', label: 'Sign Language for Kids', icon: '👶' }
+    ]
+  },
+  {
+    id: 'teachingMode',
+    title: 'Teaching Preference',
+    question: 'How do you prefer to teach?',
+    type: 'single',
+    options: [
+      { value: 'video_lessons', label: 'Pre-recorded Video Lessons', icon: '🎥' },
+      { value: 'live_sessions', label: 'Live Interactive Sessions', icon: '📹' },
+      { value: 'both', label: 'Both Video & Live Sessions', icon: '🎬' },
+      { value: 'materials', label: 'Educational Materials & Guides', icon: '📖' }
+    ]
+  },
+  {
+    id: 'availability',
+    title: 'Time Commitment',
+    question: 'How much time can you dedicate to teaching?',
+    type: 'single',
+    options: [
+      { value: 'part_time', label: 'Part-time (5-10 hours/week)', icon: '⏰' },
+      { value: 'regular', label: 'Regular (10-20 hours/week)', icon: '📅' },
+      { value: 'full_time', label: 'Full-time (20+ hours/week)', icon: '💼' },
+      { value: 'flexible', label: 'Flexible schedule', icon: '🔄' }
+    ]
+  },
+  {
+    id: 'motivation',
+    title: 'Your Motivation',
+    question: 'What motivates you to teach sign language?',
+    type: 'single',
+    options: [
+      { value: 'passion', label: 'Passion for sign language & deaf culture', icon: '❤️' },
+      { value: 'accessibility', label: 'Making communication accessible', icon: '🌍' },
+      { value: 'community', label: 'Building inclusive communities', icon: '🤝' },
+      { value: 'career', label: 'Career development', icon: '📈' },
+      { value: 'impact', label: 'Making a positive impact', icon: '✨' }
+    ]
+  }
+];
+
+const learnerOnboardingQuestions = [
+  {
+    id: 'experience',
+    title: 'Your Sign Language Experience',
+    question: 'What\'s your current level with sign language?',
+    type: 'single',
+    options: [
+      { value: 'complete_beginner', label: 'Complete beginner - never learned before', icon: '🌱' },
+      { value: 'basic', label: 'Basic - know the alphabet and some words', icon: '✋' },
+      { value: 'intermediate', label: 'Intermediate - can have simple conversations', icon: '🤟' },
+      { value: 'advanced', label: 'Advanced - fluent but want to improve', icon: '🙌' }
+    ]
+  },
+  {
+    id: 'motivation',
+    title: 'Why Learn Sign Language?',
+    question: 'What motivates you to learn sign language?',
+    type: 'multiple',
+    options: [
+      { value: 'family_friend', label: 'Communicate with deaf family/friends', icon: '👨‍👩‍👧‍👦' },
+      { value: 'career', label: 'Career advancement or requirements', icon: '💼' },
+      { value: 'personal_interest', label: 'Personal interest and curiosity', icon: '🧠' },
+      { value: 'accessibility', label: 'Support accessibility and inclusion', icon: '🌍' },
+      { value: 'deaf_culture', label: 'Learn about deaf culture', icon: '🏛️' },
+      { value: 'volunteer', label: 'Volunteer or community work', icon: '🤝' },
+      { value: 'academic', label: 'Academic or educational purposes', icon: '🎓' }
+    ]
+  },
+  {
+    id: 'learning_goals',
+    title: 'Learning Goals',
+    question: 'What would you like to focus on learning?',
+    type: 'multiple',
+    options: [
+      { value: 'basic_conversation', label: 'Basic everyday conversation', icon: '💬' },
+      { value: 'fingerspelling', label: 'Fingerspelling and alphabet', icon: '🔤' },
+      { value: 'family_signs', label: 'Family and relationship signs', icon: '👨‍👩‍👧' },
+      { value: 'work_signs', label: 'Professional/workplace signs', icon: '🏢' },
+      { value: 'emergency_signs', label: 'Emergency and safety signs', icon: '🚨' },
+      { value: 'cultural_aspects', label: 'Deaf culture and etiquette', icon: '🎭' },
+      { value: 'advanced_grammar', label: 'Advanced grammar and structure', icon: '📚' },
+      { value: 'storytelling', label: 'Storytelling and expressions', icon: '📖' }
+    ]
+  },
+  {
+    id: 'learning_style',
+    title: 'Learning Preference',
+    question: 'How do you prefer to learn?',
+    type: 'single',
+    options: [
+      { value: 'video_lessons', label: 'Self-paced video lessons', icon: '🎥' },
+      { value: 'live_classes', label: 'Live interactive classes', icon: '📹' },
+      { value: 'practice_sessions', label: 'Practice with other learners', icon: '👥' },
+      { value: 'one_on_one', label: 'One-on-one tutoring', icon: '👨‍🏫' },
+      { value: 'mixed_approach', label: 'Mix of different methods', icon: '🎯' }
+    ]
+  },
+  {
+    id: 'time_commitment',
+    title: 'Time Availability',
+    question: 'How much time can you dedicate to learning?',
+    type: 'single',
+    options: [
+      { value: 'casual', label: '15-30 minutes a few times a week', icon: '⏰' },
+      { value: 'regular', label: '30-60 minutes, 3-4 times a week', icon: '📅' },
+      { value: 'intensive', label: '1+ hours daily', icon: '💪' },
+      { value: 'flexible', label: 'Flexible - depends on my schedule', icon: '🔄' }
+    ]
+  },
+  {
+    id: 'preferred_pace',
+    title: 'Learning Pace',
+    question: 'What learning pace works best for you?',
+    type: 'single',
+    options: [
+      { value: 'slow_steady', label: 'Slow and steady - I like to master each step', icon: '🐢' },
+      { value: 'moderate', label: 'Moderate pace - balanced approach', icon: '🚶‍♀️' },
+      { value: 'fast_track', label: 'Fast track - I learn quickly', icon: '🏃‍♂️' },
+      { value: 'adaptive', label: 'Adaptive - adjust based on difficulty', icon: '🎚️' }
+    ]
+  }
+];
+
+const handleOnboardingAnswer = (questionId, value, isMultiple = false) => {
+  setOnboardingData(prev => {
+    if (isMultiple) {
+      const currentValues = prev[questionId] || [];
+      const newValues = currentValues.includes(value)
+        ? currentValues.filter(v => v !== value)
+        : [...currentValues, value];
+      return { ...prev, [questionId]: newValues };
+    }
+    return { ...prev, [questionId]: value };
+  });
+};
+
+
+const nextQuestion = () => {
+  const maxQuestions = selectedRole === 'Instructor' 
+    ? onboardingQuestions.length 
+    : learnerOnboardingQuestions.length;
+    
+  if (currentQuestion < maxQuestions - 1) {
+    setCurrentQuestion(prev => prev + 1);
+  } else {
+    // Finished onboarding, show signup form
+    setShowOnboarding(false);
+  }
+};
+
+const prevQuestion = () => {
+  if (currentQuestion > 0) {
+    setCurrentQuestion(prev => prev - 1);
+  }
+};
+
+
+const isCurrentQuestionAnswered = () => {
+  const questions = selectedRole === 'Instructor' 
+    ? onboardingQuestions 
+    : learnerOnboardingQuestions;
+  const question = questions[currentQuestion];
+  const answer = onboardingData[question.id];
+  
+  if (question.type === 'multiple') {
+    return answer && answer.length > 0;
+  }
+  return answer && answer !== '';
+};
+const handleRoleSelection = (role) => {
+  setSelectedRole(role);
+  setFormData(prev => ({
+    ...prev,
+    role: role
+  }));
+  
+  // Show onboarding for both instructors and learners
+  setShowOnboarding(true);
+  setShowRoleSelection(false);
+  setCurrentQuestion(0); // Reset to first question
+};
+
+const goBackToRoleSelection = () => {
+  setShowRoleSelection(true);
+  setShowOnboarding(false);
+  setCurrentQuestion(0);
+  // Reset onboarding data
+  setOnboardingData({
+    experience: '',
+    certifications: [],
+    specializations: [],
+    teachingMode: '',
+    availability: '',
+    motivation: '',
+    learning_goals: [],
+    learning_style: '',
+    time_commitment: '',
+    preferred_pace: ''
+  });
+};
   
   // Check for redirect result on component mount
   useEffect(() => {
@@ -109,53 +368,78 @@ const Signup = () => {
     return Object.keys(newErrors).length === 0;
   };
   
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  if (!validateForm()) {
+    return;
+  }
+  
+  setLoading(true);
+  setMessage({ type: '', text: '' });
+  
+  try {
+    // Create the user account first
+    const user = await signUpWithEmail(
+      formData.email, 
+      formData.password,
+      formData.fullName
+    );
     
-    if (!validateForm()) {
-      return;
+    // Prepare user profile data
+    const userProfileData = {
+      uid: user.uid,
+      fullName: formData.fullName,
+      email: formData.email,
+      role: selectedRole,
+      emailVerified: user.emailVerified,
+      photoURL: user.photoURL || null,
+      accountType: 'email' // to distinguish from Google accounts
+    };
+    
+    // Save user profile to Firestore
+    await saveUserProfile(user.uid, userProfileData);
+    
+    // Save onboarding data to Firestore
+    await saveOnboardingData(user.uid, onboardingData, selectedRole);
+    
+    // Success message and redirect
+    setMessage({ 
+      type: 'success', 
+      text: 'Registration successful! Setting up your profile...' 
+    });
+    
+    // Store user data in localStorage for immediate access
+    localStorage.setItem('Status', 'Authenticated');
+    localStorage.setItem('userRole', selectedRole);
+    localStorage.setItem('userProfile', JSON.stringify(userProfileData));
+    
+    // Redirect to dashboard after 2 seconds
+    setTimeout(() => {
+      window.location.href = '/dashboard';
+    }, 2000);
+    
+  } catch (error) {
+    console.error('Registration error:', error);
+    
+    // Handle specific Firebase auth errors
+    let errorMessage = 'An error occurred during registration. Please try again.';
+    
+    if (error.code === 'auth/email-already-in-use') {
+      errorMessage = 'This email is already registered. Please use a different email or sign in.';
+    } else if (error.code === 'auth/invalid-email') {
+      errorMessage = 'The email address is not valid.';
+    } else if (error.code === 'auth/weak-password') {
+      errorMessage = 'Password is too weak. Please choose a stronger password.';
+    } else if (error.message) {
+      errorMessage = error.message;
     }
     
-    setLoading(true);
-    setMessage({ type: '', text: '' });
-    
-    try {
-      // Update: Using the new signUpWithEmail function instead
-      const user = await signUpWithEmail(
-        formData.email, 
-        formData.password,
-        formData.fullName  // Pass the display name directly to the function
-      );
-      
-      // Success message and redirect
-      setMessage({ 
-        type: 'success', 
-        text: 'Registration successful! Redirecting to dashboard...' 
-      });
-      
-      // Redirect to dashboard after 1.5 seconds
-      setTimeout(() => {
-        window.location.href = '/dashboard';
-        localStorage.setItem('Status', 'Authenticated')
-      }, 1500);
-      
-    } catch (error) {
-      // Handle specific Firebase auth errors
-      let errorMessage = 'An error occurred during registration. Please try again.';
-      
-      if (error.code === 'auth/email-already-in-use') {
-        errorMessage = 'This email is already registered. Please use a different email or sign in.';
-      } else if (error.code === 'auth/invalid-email') {
-        errorMessage = 'The email address is not valid.';
-      } else if (error.code === 'auth/weak-password') {
-        errorMessage = 'Password is too weak. Please choose a stronger password.';
-      }
-      
-      setMessage({ type: 'error', text: errorMessage });
-    } finally {
-      setLoading(false);
-    }
-  };
+    setMessage({ type: 'error', text: errorMessage });
+  } finally {
+    setLoading(false);
+  }
+};
   
   const handleGoogleSignIn = async (useRedirect = false) => {
     setLoading(true);
@@ -175,19 +459,52 @@ const Signup = () => {
     }
   };
   
-  const handleGoogleAuthSuccess = (user) => {
+const handleGoogleAuthSuccess = async (user) => {
+  try {
     setMessage({ 
       type: 'success', 
-      text: `Welcome, ${user.displayName || 'User'}! Redirecting to dashboard...` 
+      text: `Welcome, ${user.displayName || 'User'}! Setting up your profile...` 
     });
+    
+    // Prepare user profile data for Google users
+    const userProfileData = {
+      uid: user.uid,
+      fullName: user.displayName || '',
+      email: user.email,
+      role: selectedRole,
+      emailVerified: user.emailVerified,
+      photoURL: user.photoURL || null,
+      accountType: 'google'
+    };
+    
+    // Save user profile to Firestore
+    await saveUserProfile(user.uid, userProfileData);
+    
+    // Save onboarding data to Firestore (if user went through onboarding)
+    if (Object.keys(onboardingData).some(key => onboardingData[key])) {
+      await saveOnboardingData(user.uid, onboardingData, selectedRole);
+    }
+    
+    // Store user data in localStorage
+    localStorage.setItem('Status', 'Authenticated');
+    localStorage.setItem('userRole', selectedRole);
+    localStorage.setItem('userProfile', JSON.stringify(userProfileData));
     
     // Redirect to dashboard after successful Google sign-in
     setTimeout(() => {
       window.location.href = '/dashboard';
-    }, 1500);
+    }, 2000);
     
-    setLoading(false);
-  };
+  } catch (error) {
+    console.error('Error saving Google user data:', error);
+    setMessage({ 
+      type: 'error', 
+      text: 'Account created but there was an issue setting up your profile. Please contact support.' 
+    });
+  }
+  
+  setLoading(false);
+};
   
   const toggleShowPassword = () => {
     setShowPassword(prev => !prev);
@@ -201,24 +518,240 @@ const Signup = () => {
     return 'bg-green-500';
   };
   
-  return (
-    <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Create your account
-        </h2>
-      </div>
+ return (
+  <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="sm:mx-auto sm:w-full sm:max-w-md">
+      <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        {showRoleSelection ? 'Choose Your Role' : 'Create your account'}
+      </h2>
+      {selectedRole && !showRoleSelection && (
+        <p className="mt-2 text-center text-sm text-gray-600">
+          Signing up as: <span className="font-medium text-blue-600">{selectedRole}</span>
+          <button 
+            onClick={goBackToRoleSelection}
+            className="ml-2 text-blue-600 hover:text-blue-500 underline"
+          >
+            Change
+          </button>
+        </p>
+      )}
+    </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+    <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+    {showRoleSelection ? (
+  // Role Selection Cards (keep your existing role selection JSX)
+    <div className="space-y-4">
+          <div 
+            onClick={() => handleRoleSelection('Instructor')}
+            className="bg-white p-6 rounded-lg shadow cursor-pointer hover:shadow-lg transition-shadow border-2 border-transparent hover:border-blue-500"
+          >
+            <div className="text-center">
+              <div className="mx-auto h-12 w-12 text-blue-600 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900">Instructor</h3>
+              <p className="mt-2 text-sm text-gray-500">
+                Create and manage courses, track student progress, and share your expertise
+              </p>
+            </div>
+          </div>
+
+          <div 
+            onClick={() => handleRoleSelection('Learner')}
+            className="bg-white p-6 rounded-lg shadow cursor-pointer hover:shadow-lg transition-shadow border-2 border-transparent hover:border-blue-500"
+          >
+            <div className="text-center">
+              <div className="mx-auto h-12 w-12 text-green-600 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900">Learner</h3>
+              <p className="mt-2 text-sm text-gray-500">
+                Discover courses, learn new skills, and track your learning journey
+              </p>
+            </div>
+          </div>
+        </div>
+) : showOnboarding ? (
+  // Onboarding Questions
+  <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+    <div className="mb-6">
+      <div className="flex justify-between items-center mb-4">
+        <span className="text-sm font-medium text-gray-500">
+          Question {currentQuestion + 1} of {
+            selectedRole === 'Instructor' 
+              ? onboardingQuestions.length 
+              : learnerOnboardingQuestions.length
+          }
+        </span>
+        <button
+          onClick={goBackToRoleSelection}
+          className="text-sm text-blue-600 hover:text-blue-500"
+        >
+          Change Role
+        </button>
+      </div>
+      
+      {/* Progress Bar */}
+      <div className="w-full bg-gray-200 rounded-full h-2 mb-6">
+        <div 
+          className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+          style={{ 
+            width: `${((currentQuestion + 1) / (
+              selectedRole === 'Instructor' 
+                ? onboardingQuestions.length 
+                : learnerOnboardingQuestions.length
+            )) * 100}%` 
+          }}
+        ></div>
+      </div>
+    </div>
+
+     <div className="text-center mb-8">
+      <div className="mx-auto w-16 h-16 mb-4 flex items-center justify-center">
+        {selectedRole === 'Instructor' ? (
+          <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
+            <span className="text-2xl">👨‍🏫</span>
+          </div>
+        ) : (
+          <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
+            <span className="text-2xl">🎓</span>
+          </div>
+        )}
+      </div>
+      
+      <h3 className="text-xl font-semibold text-gray-900 mb-2">
+        {selectedRole === 'Instructor' 
+          ? onboardingQuestions[currentQuestion].title
+          : learnerOnboardingQuestions[currentQuestion].title
+        }
+      </h3>
+      <p className="text-gray-600">
+        {selectedRole === 'Instructor' 
+          ? onboardingQuestions[currentQuestion].question
+          : learnerOnboardingQuestions[currentQuestion].question
+        }
+      </p>
+    </div>
+
+
+     <div className="space-y-3 mb-8">
+      {(selectedRole === 'Instructor' 
+        ? onboardingQuestions[currentQuestion].options
+        : learnerOnboardingQuestions[currentQuestion].options
+      ).map((option) => {
+        const currentQuestions = selectedRole === 'Instructor' 
+          ? onboardingQuestions 
+          : learnerOnboardingQuestions;
+        
+        const isSelected = currentQuestions[currentQuestion].type === 'multiple'
+          ? (onboardingData[currentQuestions[currentQuestion].id] && 
+             onboardingData[currentQuestions[currentQuestion].id].includes(option.value))
+          : onboardingData[currentQuestions[currentQuestion].id] === option.value;
+
+        return (
+          <div
+            key={option.value}
+            onClick={() => handleOnboardingAnswer(
+              currentQuestions[currentQuestion].id, 
+              option.value, 
+              currentQuestions[currentQuestion].type === 'multiple'
+            )}
+            className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 transform hover:scale-[1.02] ${
+              isSelected 
+                ? selectedRole === 'Instructor'
+                  ? 'border-blue-500 bg-blue-50 shadow-md'
+                  : 'border-green-500 bg-green-50 shadow-md'
+                : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            <div className="flex items-center space-x-3">
+              <span className="text-2xl">{option.icon}</span>
+              <div className="flex-1">
+                <p className={`font-medium ${
+                  isSelected 
+                    ? selectedRole === 'Instructor' 
+                      ? 'text-blue-900' 
+                      : 'text-green-900'
+                    : 'text-gray-900'
+                }`}>
+                  {option.label}
+                </p>
+              </div>
+              {(selectedRole === 'Instructor' 
+                ? onboardingQuestions[currentQuestion].type === 'multiple'
+                : learnerOnboardingQuestions[currentQuestion].type === 'multiple'
+              ) && (
+                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                  isSelected 
+                    ? selectedRole === 'Instructor'
+                      ? 'bg-blue-500 border-blue-500'
+                      : 'bg-green-500 border-green-500'
+                    : 'border-gray-300'
+                }`}>
+                  {isSelected && (
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+
+    {/* Navigation Buttons */}
+    <div className="flex justify-between">
+      <button
+        onClick={prevQuestion}
+        disabled={currentQuestion === 0}
+        className={`px-6 py-2 rounded-md font-medium transition-colors ${
+          currentQuestion === 0
+            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+        }`}
+      >
+        Previous
+      </button>
+      
+      <button
+        onClick={nextQuestion}
+        disabled={!isCurrentQuestionAnswered()}
+        className={`px-6 py-2 rounded-md font-medium transition-colors ${
+          !isCurrentQuestionAnswered()
+            ? selectedRole === 'Instructor'
+              ? 'bg-blue-300 text-blue-100 cursor-not-allowed'
+              : 'bg-green-300 text-green-100 cursor-not-allowed'
+            : selectedRole === 'Instructor'
+              ? 'bg-blue-600 text-white hover:bg-blue-700'
+              : 'bg-green-600 text-white hover:bg-green-700'
+        }`}
+      >
+        {currentQuestion === (selectedRole === 'Instructor' 
+          ? onboardingQuestions.length - 1 
+          : learnerOnboardingQuestions.length - 1
+        ) ? 'Continue to Signup' : 'Next'}
+      </button>
+    </div>
+  </div>
+) : (
+  // Your existing signup form JSX
+ <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {/* Rest of your existing form code goes here unchanged */}
           {message.text && (
             <div className={`mb-4 p-3 rounded ${message.type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
               {message.text}
             </div>
           )}
           
-          {/* Social Login Options */}
-          <div className="space-y-3">
+           <div className="space-y-3">
             <button
               type="button"
               onClick={() => handleGoogleSignIn(false)}
@@ -381,19 +914,11 @@ const Signup = () => {
               </div>
             </form>
           </div>
-
-          <div className="mt-6">
-            <p className="text-center text-sm text-gray-600">
-              Already have an account?{' '}
-              <a href="/login" className="font-medium text-blue-600 hover:text-blue-500">
-                Sign in
-              </a>
-            </p>
-          </div>
         </div>
-      </div>
+)}
     </div>
-  );
+  </div>
+);
 };
 
 export default Signup;

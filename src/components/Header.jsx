@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Menu, X, LogOut, User, ChevronDown, Settings, BarChart3, UserCircle, Sun, Moon, ArrowRight } from 'lucide-react';
+import { Home, Menu, X, LogOut, User, Settings, BarChart3, UserCircle, Sun, Moon, ArrowRight } from 'lucide-react';
+import { signOutUser, subscribeToAuthChanges, getCurrentUser } from '../Firebase/Firebase'; // Adjust path to your firebase config
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -10,7 +11,7 @@ const Header = () => {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Navigation items - equivalent to service_1 and service_2 from navbar
+  // Navigation items from the original Header component
   const mainNavItems = [
     { name: "Home", href: "#home" },
     { name: "Features", href: "#features" },
@@ -18,8 +19,7 @@ const Header = () => {
     { name: "Teach With Us", href: "#teach" }
   ];
 
-  // Auth buttons for non-authenticated users (removed as requested)
-  // const authButtons = [];
+  // Removed auth buttons - replaced with Start Learning button
 
   // Profile dropdown menu items
   const profileMenuItems = [
@@ -27,7 +27,7 @@ const Header = () => {
       name: "Dashboard",
       icon: BarChart3,
       href: "/dashboard",
-      description: "View your progress"
+      description: "View your dashboard"
     },
     {
       name: "Profile",
@@ -42,6 +42,8 @@ const Header = () => {
       description: "Account settings"
     }
   ];
+
+
 
   // Theme management
   useEffect(() => {
@@ -64,30 +66,31 @@ const Header = () => {
     };
   }, []);
 
-  // Mock authentication state - replace with your actual auth logic
+  // Set up Firebase auth state listener
   useEffect(() => {
-    // Simulate checking authentication status
-    const checkAuth = () => {
-      const authStatus = localStorage.getItem('Status');
-      const userData = localStorage.getItem('userData');
+    const unsubscribe = subscribeToAuthChanges((user) => {
+      setUser(user);
+      setIsAuthenticated(!!user);
       
-      if (authStatus === 'Authenticated' && userData) {
-        try {
-          const parsedUser = JSON.parse(userData);
-          setUser(parsedUser);
-          setIsAuthenticated(true);
-        } catch (error) {
-          console.error('Error parsing user data:', error);
-          setIsAuthenticated(false);
-          setUser(null);
-        }
+      // Update localStorage to maintain compatibility with existing code
+      if (user) {
+        localStorage.setItem("Status", "Authenticated");
+        // Store additional user info if needed
+        localStorage.setItem("userData", JSON.stringify({
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL
+        }));
       } else {
-        setIsAuthenticated(false);
-        setUser(null);
+        localStorage.removeItem("Status");
+        localStorage.removeItem("userData");
+        localStorage.removeItem("userToken");
       }
-    };
+    });
 
-    checkAuth();
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
   }, []);
 
   const toggleTheme = () => {
@@ -105,26 +108,26 @@ const Header = () => {
     setMobileMenuOpen(false);
   };
 
-  // Mock logout function - replace with your actual logout logic
+  // Firebase logout function using your custom signOutUser
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
-      // Simulate logout process
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await signOutUser();
       
       // Clear all localStorage items
       localStorage.removeItem("Status");
       localStorage.removeItem("userToken");
       localStorage.removeItem("userData");
       
-      setUser(null);
-      setIsAuthenticated(false);
-      setProfileDropdownOpen(false);
-      
       console.log('User signed out successfully');
+      
+      // Close dropdown
+      setProfileDropdownOpen(false);
       
       // Redirect to home page
       window.location.href = '/';
+      // Alternative: use your router's navigation
+      // navigate('/');
       
     } catch (error) {
       console.error('Error signing out:', error);
@@ -147,17 +150,15 @@ const Header = () => {
 
   return (
     <header className="fixed w-full z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 transition-all duration-300">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           
           {/* Logo */}
           <div className="flex items-center">
-            <img src="public/logo.png" alt="Logo" className="h-10 md:h-12" />
-            <span className="ml-2 text-xs md:text-sm font-bold text-primary dark:text-accent">
-              Connecting Hands
-              <br />
-              Building Understanding
-            </span>
+            <Home className="h-7 w-7 text-blue-600 dark:text-blue-400" />
+            <a href="/" className="ml-2 text-xl font-bold text-gray-800 dark:text-gray-200">
+              Property Premium
+            </a>
           </div>
 
           {/* Desktop Navigation */}
@@ -166,7 +167,7 @@ const Header = () => {
               <a
                 key={index}
                 href={item.href}
-                className="nav-link relative font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-accent transition-colors"
+                className="nav-link relative font-medium text-gray-700 dark:text-gray-300 hover:text-blue-700 dark:hover:text-blue-400 transition-colors"
               >
                 {item.name}
               </a>
@@ -179,14 +180,12 @@ const Header = () => {
             {/* Start Learning Button - Show when not authenticated */}
             {!isAuthenticated && (
               <a href="/signup">
-                <button className="hidden md:flex items-center px-5 py-2 bg-secondary hover:bg-secondary text-blue font-medium rounded-full transition-all duration-300 shadow-lg hover:shadow-xl shine-effect relative overflow-hidden">
+                <button className="hidden md:flex items-center px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full transition-all duration-300 shadow-lg hover:shadow-xl">
                   Start Learning
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </button>
               </a>
             )}
-
-            {/* Remove Auth Buttons section as requested */}
 
             {/* User Profile Dropdown - Show when authenticated */}
             <div className={`relative ${isAuthenticated ? 'flex' : 'hidden'}`} ref={dropdownRef}>
@@ -199,11 +198,11 @@ const Header = () => {
                   <img 
                     src={user.photoURL} 
                     alt="User Avatar" 
-                    className="h-8 w-8 rounded-full border-2 border-gray-200 dark:border-gray-600 hover:border-primary dark:hover:border-accent transition-colors"
+                    className="h-8 w-8 rounded-full border-2 border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-400 transition-colors"
                   />
                 ) : (
-                  <div className="h-8 w-8 bg-primary/20 dark:bg-accent/20 rounded-full flex items-center justify-center hover:bg-primary/30 dark:hover:bg-accent/30 transition-colors">
-                    <User className="h-4 w-4 text-primary dark:text-accent" />
+                  <div className="h-8 w-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center hover:bg-blue-200 dark:hover:bg-blue-800/30 transition-colors">
+                    <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   </div>
                 )}
               </button>
@@ -221,8 +220,8 @@ const Header = () => {
                           className="h-10 w-10 rounded-full border-2 border-gray-200 dark:border-gray-600"
                         />
                       ) : (
-                        <div className="h-10 w-10 bg-primary/20 dark:bg-accent/20 rounded-full flex items-center justify-center">
-                          <User className="h-5 w-5 text-primary dark:text-accent" />
+                        <div className="h-10 w-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                          <User className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                         </div>
                       )}
                       <div>
@@ -316,8 +315,8 @@ const Header = () => {
                     className="h-10 w-10 rounded-full border-2 border-gray-200 dark:border-gray-600"
                   />
                 ) : (
-                  <div className="h-10 w-10 bg-primary/20 dark:bg-accent/20 rounded-full flex items-center justify-center">
-                    <User className="h-5 w-5 text-primary dark:text-accent" />
+                  <div className="h-10 w-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                    <User className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   </div>
                 )}
                 <div>
@@ -334,7 +333,7 @@ const Header = () => {
                   <a
                     key={index}
                     href={item.href}
-                    className="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-accent transition-colors duration-200 py-1"
+                    className="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300 hover:text-blue-700 dark:hover:text-blue-400 transition-colors duration-200 py-1"
                     onClick={handleNavClick}
                   >
                     <item.icon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
@@ -350,7 +349,7 @@ const Header = () => {
             <a
               key={i}
               href={item.href}
-              className="block text-sm text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-accent hover:translate-x-1 transition-all duration-200 py-1"
+              className="block text-sm text-gray-700 dark:text-gray-300 hover:text-blue-700 dark:hover:text-blue-400 hover:translate-x-1 transition-all duration-200 py-1"
               onClick={handleNavClick}
             >
               {item.name}
@@ -362,7 +361,7 @@ const Header = () => {
           {/* Mobile - Show Start Learning when not authenticated */}
           {!isAuthenticated && (
             <a href="/signup">
-              <button className="w-full mt-2 px-4 py-2 bg-primary hover:bg-secondary text-white font-medium rounded-md transition-colors flex items-center justify-center">
+              <button className="w-full mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors flex items-center justify-center">
                 Start Learning
                 <ArrowRight className="ml-2 h-4 w-4" />
               </button>

@@ -4,6 +4,8 @@ import Homepage from './Pages/Homepages'
 import { subscribeToAuthChanges } from './Firebase/Firebase'
 import Header from './components/Header'
 import Dashboard from './components/Dashboard'
+
+import Signup from './components/SignUp'
 import Login from './components/Login'
 
 
@@ -14,6 +16,9 @@ const LoadingSpinner = () => (
     <span className="ml-3 text-gray-600">Loading...</span>
   </div>
 );
+
+
+//
 
 // Protected Route component
 const ProtectedRoute = ({ children, isAuthenticated, isLoading }) => {

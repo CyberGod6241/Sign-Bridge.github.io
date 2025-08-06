@@ -40,13 +40,13 @@ import {
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDBgJGytsQvvYIEwNgbIbogkjcHZAwHzb8",
-  authDomain: "properties-a2d2b.firebaseapp.com",
-  projectId: "properties-a2d2b",
-  storageBucket: "properties-a2d2b.firebasestorage.app",
-  messagingSenderId: "546687848025",
-  appId: "1:546687848025:web:783fefc052108b80206b48",
-  measurementId: "G-J5VRQ6NBK3"
+ apiKey: "AIzaSyDlryJmQfP2b7N0inJJJNzCCwtAxrxutws",
+  authDomain: "signbridge-s.firebaseapp.com",
+  projectId: "signbridge-s",
+  storageBucket: "signbridge-s.firebasestorage.app",
+  messagingSenderId: "639942990123",
+  appId: "1:639942990123:web:816b496026ba9827860d6e",
+  measurementId: "G-ZCS9PC5F11"
 };
 
 // Initialize Firebase
@@ -366,40 +366,8 @@ export const permanentlyDeleteProduct = async (productId) => {
   }
 };
 
-// Get a single product by ID
-export const getProduct = async (productId) => {
-  try {
-    const productDocRef = doc(db, 'products', productId);
-    const productDoc = await getDoc(productDocRef);
-    
-    if (productDoc.exists()) {
-      return {
-        id: productDoc.id,
-        ...productDoc.data()
-      };
-    } else {
-      console.log('Product not found');
-      return null;
-    }
-  } catch (error) {
-    console.error('Error getting product:', error);
-    throw error;
-  }
-};
 
-// Increment product views
-export const incrementProductViews = async (productId) => {
-  try {
-    const productDocRef = doc(db, 'products', productId);
-    await updateDoc(productDocRef, {
-      views: increment(1),
-      updatedAt: serverTimestamp()
-    });
-  } catch (error) {
-    console.error('Error incrementing product views:', error);
-    throw error;
-  }
-};
+
 
 // ==================== ENHANCED AUTHENTICATION ====================
 
@@ -510,124 +478,10 @@ export const getCurrentUser = () => {
   return auth.currentUser;
 };
 
-// Enhanced uploadImage function with progress tracking and metadata
-export const uploadImage = async (file, progressCallback = null) => {
-  if (!file || !auth.currentUser) return null;
-  
-  const user = auth.currentUser;
-  const storage = getStorage();
-  const storageRef = ref(storage, `product-images/${user.uid}/${Date.now()}_${file.name}`);
-  
-  const metadata = {
-    contentType: file.type,
-    customMetadata: {
-      'originalName': file.name,
-      'uploadedBy': user.uid,
-      'uploadedAt': new Date().toISOString()
-    }
-  };
-  
-  try {
-    const uploadTask = uploadBytesResumable(storageRef, file, metadata);
-    
-    if (progressCallback && typeof progressCallback === 'function') {
-      uploadTask.on('state_changed', 
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          progressCallback(progress);
-        }
-      );
-    }
-    
-    const snapshot = await uploadTask;
-    const downloadURL = await getDownloadURL(snapshot.ref);
-    return {
-      url: downloadURL,
-      path: snapshot.ref.fullPath,
-      name: file.name,
-      size: file.size,
-      type: file.type
-    };
-  } catch (error) {
-    console.error("Error uploading image:", error);
-    
-    if (error.code) {
-      switch (error.code) {
-        case 'storage/unauthorized':
-          throw new Error('You do not have permission to upload files');
-        case 'storage/canceled':
-          throw new Error('Upload was canceled');
-        case 'storage/quota-exceeded':
-          throw new Error('Storage quota exceeded. Please contact support.');
-        case 'storage/retry-limit-exceeded':
-          throw new Error('Upload failed after multiple attempts. Please check your connection.');
-        default:
-          throw new Error(`Upload failed: ${error.message}`);
-      }
-    }
-    
-    throw error;
-  }
-};
 
-// Enhanced function to upload multiple images
-export const uploadMultipleImages = async (files, progressCallback = null) => {
-  if (!files || !files.length || !auth.currentUser) return [];
-  
-  const results = [];
-  const totalFiles = files.length;
-  let overallProgress = 0;
-  
-  try {
-    const uploadPromises = files.map((file, index) => {
-      return uploadImage(
-        file, 
-        (fileProgress) => {
-          const individualContribution = fileProgress / totalFiles;
-          const previousFileContributions = (index / totalFiles) * 100;
-          overallProgress = previousFileContributions + individualContribution;
-          
-          if (progressCallback) {
-            progressCallback(Math.round(overallProgress));
-          }
-        }
-      );
-    });
-    
-    const uploadResults = await Promise.all(uploadPromises);
-    results.push(...uploadResults.map(result => result.url));
-    
-    return results;
-  } catch (error) {
-    console.error("Error uploading multiple images:", error);
-    throw error;
-  } finally {
-    if (progressCallback) {
-      progressCallback(100);
-    }
-  }
-};
 
-// Function to delete images from storage
-export const deleteImageFromStorage = async (imageUrl) => {
-  try {
-    const user = auth.currentUser;
-    
-    if (!user) {
-      throw new Error("User not authenticated");
-    }
-    
-    const storage = getStorage();
-    const imageRef = ref(storage, imageUrl);
-    await deleteObject(imageRef);
-    
-    console.log(`Deleted image: ${imageUrl}`);
-    return true;
-  } catch (error) {
-    console.error("Error deleting image:", error);
-    throw error;
-  }
-};
+
+
 
 // Export all instances and functions
 export { 
@@ -640,50 +494,3 @@ export {
   createUserWithEmailAndPassword
 };
 
-// Add this new function to your Firebase file
-export const uploadProfileImage = async (file, progressCallback = null) => {
-  if (!file || !auth.currentUser) return null;
-  
-  const user = auth.currentUser;
-  const storageRef = ref(storage, `profile-images/${user.uid}/${Date.now()}_${file.name}`);
-  
-  const metadata = {
-    contentType: file.type,
-    customMetadata: {
-      'originalName': file.name,
-      'uploadedBy': user.uid,
-      'uploadedAt': new Date().toISOString()
-    }
-  };
-  
-  try {
-    const uploadTask = uploadBytesResumable(storageRef, file, metadata);
-    
-    return new Promise((resolve, reject) => {
-      uploadTask.on('state_changed', 
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          if (progressCallback) progressCallback(progress);
-        },
-        (error) => {
-          console.error("Upload failed:", error);
-          reject(error);
-        },
-        async () => {
-          try {
-            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            resolve({
-              url: downloadURL,
-              path: uploadTask.snapshot.ref.fullPath
-            });
-          } catch (error) {
-            reject(error);
-          }
-        }
-      );
-    });
-  } catch (error) {
-    console.error("Error uploading profile image:", error);
-    throw error;
-  }
-};
