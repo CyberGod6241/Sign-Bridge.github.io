@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Instuctors_Dashboard = () => {
+const Instructors_Dashboard = () => {
   return (
 <>
 <h1>Welcome instructor</h1>
@@ -8,4 +8,4 @@ const Instuctors_Dashboard = () => {
   )
 }
 
-export default Instuctors_Dashboard
+export default Instructors_Dashboard
