@@ -7,8 +7,8 @@ import Dashboard from './components/Dashboard'
 
 import Signup from './components/SignUp'
 import Login from './components/Login'
-import Instructors_Dashboard from './Dashboard/Instructors_Dashboard'
-import Learners_Dashboard from './Dashboard/Learners_Dashboard'
+import Instuctors_Dashboard from './Dashboard/Instuctors_Dashboard'
+import Leaners_Dashboard from './Dashboard/Leaners_Dashboard'
 
 
 // Loading spinner component
@@ -102,33 +102,26 @@ const App = () => {
                 <Login />
               </PublicRoute>
             } 
-          />
+          />  
           
-          {/* Protected routes */}
-          {/* <Route 
-            path='/dashboard/*' 
-            element={
-              <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
-                <Dashboard />
-              </ProtectedRoute>
-            } 
-          /> */}
+          
           <Route 
-            path='/Instructors_dashboard/*' 
+            path='/Instuctors_dashboard/*' 
             element={
               <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
-                <Instructors_Dashboard />
+                <Instuctors_Dashboard />
               </ProtectedRoute>
             } 
           />
           <Route 
-            path='/Learners_dashboard/*' 
+            path='/Leaners_dashboard/*' 
             element={
               <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
-                <Learners_Dashboard />
+                <Leaners_Dashboard />
               </ProtectedRoute>
             } 
           />
+       
           {/* <Route path='*' element={<Navigate to="/" replace />} /> */}
         </Routes>
       </Router>
