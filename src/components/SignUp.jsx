@@ -406,18 +406,38 @@ const handleSubmit = async (e) => {
     // Success message and redirect
     setMessage({ 
       type: 'success', 
-      text: 'Registration successful! Setting up your profile...' 
+      text: `Registration successful! Setting up your ${selectedRole.toLowerCase()} dashboard...` 
     });
     
-    // Store user data in localStorage for immediate access
-    localStorage.setItem('Status', 'Authenticated');
-    localStorage.setItem('userRole', selectedRole);
-    localStorage.setItem('userProfile', JSON.stringify(userProfileData));
+  // In handleSubmit, REPLACE:
+if (selectedRole === 'Instructor') {
+  window.location.href = '/Instuctors_dashboard';
+} else {
+  window.location.href = '/Leaners_dashboard';
+}
+
+// In handleGoogleAuthSuccess, REPLACE:
+if (selectedRole === 'Instructor') {
+  window.location.href = '/Instuctors_dashboard';
+} else {
+  window.location.href = '/Leaners_dashboard';
+}
+
+// WITH consistent URLs:
+if (selectedRole === 'Instructor') {
+  window.location.href = '/Instuctors_dashboard';
+} else {
+  window.location.href = '/Leaners_dashboard';
+}
     
-    // Redirect to dashboard after 2 seconds
+    // Redirect to appropriate dashboard based on role
     setTimeout(() => {
-      window.location.href = '/dashboard';
-    }, 2000);
+      if (selectedRole === 'Instructor') {
+        window.location.href = '/Instuctors_dashboard';
+      } else {
+        window.location.href = '/Leaners_dashboard';
+      }
+    }, 200);
     
   } catch (error) {
     console.error('Registration error:', error);
@@ -463,7 +483,7 @@ const handleGoogleAuthSuccess = async (user) => {
   try {
     setMessage({ 
       type: 'success', 
-      text: `Welcome, ${user.displayName || 'User'}! Setting up your profile...` 
+      text: `Welcome, ${user.displayName || 'User'}! Setting up your ${selectedRole.toLowerCase()} dashboard...` 
     });
     
     // Prepare user profile data for Google users
@@ -486,14 +506,16 @@ const handleGoogleAuthSuccess = async (user) => {
     }
     
     // Store user data in localStorage
-    localStorage.setItem('Status', 'Authenticated');
-    localStorage.setItem('userRole', selectedRole);
-    localStorage.setItem('userProfile', JSON.stringify(userProfileData));
+  // localStorage.setItem('userProfile', JSON.stringify(userProfile));
     
-    // Redirect to dashboard after successful Google sign-in
+    // Redirect to appropriate dashboard based on role
     setTimeout(() => {
-      window.location.href = '/dashboard';
-    }, 2000);
+      if (selectedRole === 'Instructor') {
+        window.location.href = '/Instuctors_dashboard';
+      } else {
+        window.location.href = '/Leaners_dashboard';
+      }
+    }, 200);
     
   } catch (error) {
     console.error('Error saving Google user data:', error);

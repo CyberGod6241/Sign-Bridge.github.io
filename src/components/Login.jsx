@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getUserRole, getUserProfile } from '../Firebase/Firestore';
 import { 
   auth,
   signInWithEmail, 
@@ -19,41 +20,61 @@ const LogIn = () => {
   const [message, setMessage] = useState({ type: '', text: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+
+  
   
   // Check for redirect result on component mount and handle auth state changes
-  useEffect(() => {
-    // Check for redirect result
-    const checkRedirect = async () => {
-      try {
-        const user = await handleRedirectResult();
-        if (user) {
-          handleAuthSuccess(user);
-        }
-      } catch (error) {
-        setMessage({ type: 'error', text: getErrorMessage(error) });
+useEffect(() => {
+  // Check for redirect result
+  const checkRedirect = async () => {
+    try {
+      const user = await handleRedirectResult();
+      if (user) {
+        await handleAuthSuccess(user);
       }
-    };
-    
-    checkRedirect();
+    } catch (error) {
+      setMessage({ type: 'error', text: getErrorMessage(error) });
+    }
+  };
+  
+  checkRedirect();
     
     // Set up auth state listener
-    const unsubscribe = subscribeToAuthChanges((user) => {
-      if (user) {
-        // User is already signed in, redirect to dashboard
-        window.location.href = '/dashboard';
-        localStorage.setItem('Status', 'Authenticated')
+   const unsubscribe = subscribeToAuthChanges(async (user) => {
+    if (user) {
+      // User is already signed in, get their role and redirect to appropriate dashboard
+      try {
+        const userRole = await getUserRole(user.uid);
+        if (userRole) {
+          localStorage.setItem('Status', 'Authenticated');
+          localStorage.setItem('userRole', userRole);
+          
+          // Redirect to role-specific dashboard
+          if (userRole === 'Instructor') {
+            window.location.href = '/Instuctors_dashboard';
+          } else if (userRole === 'Learner') {
+            window.location.href = '/Leaners_dashboard';
+          } else {
+            window.location.href = '/signup'; // fallback
+          }
+        }
+      } catch (error) {
+        console.error('Error getting user role:', error);
+        // Fallback to generic dashboard if role fetch fails
+        window.location.href = '/signup';
       }
-    });
+    }
+  });
     
     // Check if "Remember me" was previously set
-    const remembered = localStorage.getItem('rememberMe');
-    if (remembered) {
-      setRememberMe(true);
-    }
-    
-    // Clean up subscription on unmount
-    return () => unsubscribe();
-  }, []);
+   const remembered = localStorage.getItem('rememberMe');
+  if (remembered) {
+    setRememberMe(true);
+  }
+  
+  // Clean up subscription on unmount
+  return () => unsubscribe();
+}, []);
   
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -112,51 +133,103 @@ const LogIn = () => {
     }
   };
   
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  if (!validateForm()) {
+    return;
+  }
+  
+  setLoading(true);
+  setMessage({ type: '', text: '' });
+  
+  try {
+    // Sign in with email/password
+    const user = await signInWithEmail(formData.email, formData.password);
+    await handleAuthSuccess(user);
+  } catch (error) {
+    setMessage({ type: 'error', text: getErrorMessage(error) });
+    setLoading(false);
+  }
+};
+  
+const handleGoogleSignIn = async (useRedirect = false) => {
+  setLoading(true);
+  setMessage({ type: '', text: '' });
+  
+  try {
+    let user;
+    if (useRedirect) {
+      // Better for mobile devices
+      await signInWithGoogleRedirect();
+      // This will redirect the user, and the page will reload
+      // We don't set loading to false here because the page will refresh
+      return;
+    } else {
+      // Popup method - better for desktop
+      user = await signInWithGoogle();
+    }
     
-    if (!validateForm()) {
+    // Check if user exists in Firestore database
+    const [userProfile, userRole] = await Promise.all([
+      getUserProfile(user.uid),
+      getUserRole(user.uid)
+    ]);
+    
+    // If user doesn't exist in database, sign them out and redirect to signup
+    if (!userProfile || !userRole) {
+      await auth.signOut(); // Sign out the user from Firebase Auth
+      setMessage({
+        type: 'error',
+        text: 'Account not found in our system. Redirecting to signup page...'
+      });
+      
+      setTimeout(() => {
+        window.location.href = '/signup';
+      }, 200);
+      
+      setLoading(false);
       return;
     }
     
-    setLoading(true);
-    setMessage({ type: '', text: '' });
+    // User exists, proceed with normal auth success flow
+    await handleAuthSuccess(user);
     
-    try {
-      // Sign in with email/password
-      const user = await signInWithEmail(formData.email, formData.password);
-      handleAuthSuccess(user);
-    } catch (error) {
-      setMessage({ type: 'error', text: getErrorMessage(error) });
-      setLoading(false);
-    }
-  };
+  } catch (error) {
+    setMessage({ type: 'error', text: getErrorMessage(error) });
+    setLoading(false);
+  }
+};
   
-  const handleGoogleSignIn = async (useRedirect = false) => {
-    setLoading(true);
-    setMessage({ type: '', text: '' });
+ const handleAuthSuccess = async (user) => {
+  try {
+    // Fetch user profile and role from Firestore
+    const [userProfile, userRole] = await Promise.all([
+      getUserProfile(user.uid),
+      getUserRole(user.uid)
+    ]);
     
-    try {
-      if (useRedirect) {
-        // Better for mobile devices
-        await signInWithGoogleRedirect();
-        // This will redirect the user, and the page will reload
-        // We don't set loading to false here because the page will refresh
-      } else {
-        // Popup method - better for desktop
-        const user = await signInWithGoogle();
-        handleAuthSuccess(user);
-      }
-    } catch (error) {
-      setMessage({ type: 'error', text: getErrorMessage(error) });
-      setLoading(false);
-    }
-  };
+    // If no profile exists in Firestore, this might be a legacy user or first-time Google login
+  // If no profile exists in Firestore, redirect to signup page
+if (!userProfile || !userRole) {
+  setMessage({
+    type: 'error',
+    text: 'User profile not found. Redirecting to signup page...'
+  });
   
-  const handleAuthSuccess = (user) => {
+  setTimeout(() => {
+    window.location.href = '/signup';
+  }, 2000);
+  
+  setLoading(false);
+  return;
+}
+    
+    // Display role-specific welcome message
+    const roleDisplayName = userRole.toLowerCase();
     setMessage({ 
       type: 'success', 
-      text: `Welcome back, ${user.displayName || 'User'}! Redirecting to dashboard...` 
+      text: `Welcome back, ${user.displayName || userProfile.fullName || 'User'}! Redirecting to your ${roleDisplayName} dashboard...` 
     });
     
     // Save to localStorage if "Remember me" is checked
@@ -166,13 +239,31 @@ const LogIn = () => {
       localStorage.removeItem('rememberMe');
     }
     
-    // Redirect to dashboard after successful sign-in
+    // Store user data in localStorage
+    localStorage.setItem('Status', 'Authenticated');
+    localStorage.setItem('userRole', userRole);
+    localStorage.setItem('userProfile', JSON.stringify(userProfile));
+    
+    // Redirect to appropriate dashboard after successful sign-in
     setTimeout(() => {
-      window.location.href = '/dashboard';
-    }, 1500);
+      if (userRole === 'Instructor') {
+        window.location.href = '/Instuctors_dashboard';
+      } else{
+        window.location.href = '/Leaners_dashboard';
+      }
+    }, 2000);
     
     setLoading(false);
-  };
+    
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    setMessage({
+      type: 'error',
+      text: 'Error loading user profile. Please try again or contact support.'
+    });
+    setLoading(false);
+  }
+};
   
   const toggleShowPassword = () => {
     setShowPassword(prev => !prev);

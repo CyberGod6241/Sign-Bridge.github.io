@@ -1,14 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Home, Menu, X, LogOut, User, Settings, BarChart3, UserCircle, Sun, Moon, ArrowRight } from 'lucide-react';
-import { signOutUser, subscribeToAuthChanges, getCurrentUser } from '../Firebase/Firebase'; // Adjust path to your firebase config
+import { signOutUser, subscribeToAuthChanges, getCurrentUser} from '../Firebase/Firebase'; // Adjust path to your firebase config
+
+import { getUserRole } from '../Firebase/Firestore';
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [user, setUser] = useState(null);
+  const [userRole, setUserRole] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [isLoadingRole, setIsLoadingRole] = useState(false);
   const dropdownRef = useRef(null);
 
   // Navigation items from the original Header component
@@ -19,15 +23,23 @@ const Header = () => {
     { name: "Teach With Us", href: "#teach" }
   ];
 
-  // Removed auth buttons - replaced with Start Learning button
+  // Get dashboard route based on user role
+  const getDashboardRoute = () => {
+    if (userRole === 'Instructor') {
+      return '/Instructors-dashboard';
+    } else {
+      return '/Learners-dashboard';
+    }
+    
+  };
 
-  // Profile dropdown menu items
+  // Profile dropdown menu items - dynamically set dashboard route
   const profileMenuItems = [
     {
       name: "Dashboard",
       icon: BarChart3,
-      href: "/dashboard",
-      description: "View your dashboard"
+      href: getDashboardRoute(),
+      description: userRole === 'instructor' ? 'Instructor dashboard' : userRole === 'learner' ? 'Learner dashboard' : 'View your dashboard'
     },
     {
       name: "Profile",
@@ -43,7 +55,29 @@ const Header = () => {
     }
   ];
 
-
+  // Fetch user role when user changes
+  const fetchUserRole = async (currentUser) => {
+    if (currentUser?.uid) {
+      setIsLoadingRole(true);
+      try {
+        const role = await getUserRole(currentUser.uid);
+        setUserRole(role);
+        
+        // Store role in localStorage for quick access
+        if (role) {
+          localStorage.setItem('userRole', role);
+        }
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+        setUserRole(null);
+      } finally {
+        setIsLoadingRole(false);
+      }
+    } else {
+      setUserRole(null);
+      localStorage.removeItem('userRole');
+    }
+  };
 
   // Theme management
   useEffect(() => {
@@ -72,6 +106,9 @@ const Header = () => {
       setUser(user);
       setIsAuthenticated(!!user);
       
+      // Fetch user role when user changes
+      fetchUserRole(user);
+      
       // Update localStorage to maintain compatibility with existing code
       if (user) {
         localStorage.setItem("Status", "Authenticated");
@@ -86,6 +123,7 @@ const Header = () => {
         localStorage.removeItem("Status");
         localStorage.removeItem("userData");
         localStorage.removeItem("userToken");
+        localStorage.removeItem("userRole");
       }
     });
 
@@ -108,6 +146,23 @@ const Header = () => {
     setMobileMenuOpen(false);
   };
 
+  // Handle dashboard click with role-based routing
+  const handleDashboardClick = (e) => {
+    e.preventDefault();
+    
+    if (isLoadingRole) {
+      // If still loading role, wait a bit
+      return;
+    }
+
+    const dashboardRoute = getDashboardRoute();
+    window.location.href = dashboardRoute;
+    // Alternative: use your router's navigation
+    // navigate(dashboardRoute);
+    
+    setProfileDropdownOpen(false);
+  };
+
   // Firebase logout function using your custom signOutUser
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -118,6 +173,7 @@ const Header = () => {
       localStorage.removeItem("Status");
       localStorage.removeItem("userToken");
       localStorage.removeItem("userData");
+      localStorage.removeItem("userRole");
       
       console.log('User signed out successfully');
       
@@ -149,7 +205,7 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed w-full z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 transition-all duration-300">
+    <header className=" w-full z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           
@@ -229,6 +285,16 @@ const Header = () => {
                         {user?.email && (
                           <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
                         )}
+                        {/* Show role badge */}
+                        {userRole && (
+                          <span className={`inline-block px-2 py-1 text-xs rounded-full mt-1 ${
+                            userRole === 'instructor' 
+                              ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' 
+                              : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                          }`}>
+                            {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -239,12 +305,19 @@ const Header = () => {
                       <a
                         key={index}
                         href={item.href}
-                        className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
-                        onClick={() => setProfileDropdownOpen(false)}
+                        onClick={item.name === 'Dashboard' ? handleDashboardClick : () => setProfileDropdownOpen(false)}
+                        className={`flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 ${
+                          item.name === 'Dashboard' && isLoadingRole ? 'opacity-50 cursor-wait' : ''
+                        }`}
                       >
                         <item.icon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                         <div>
-                          <p className="font-medium">{item.name}</p>
+                          <p className="font-medium">
+                            {item.name}
+                            {item.name === 'Dashboard' && isLoadingRole && (
+                              <span className="ml-1 text-xs text-gray-400">(Loading...)</span>
+                            )}
+                          </p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">{item.description}</p>
                         </div>
                       </a>
@@ -324,6 +397,16 @@ const Header = () => {
                   {user?.email && (
                     <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
                   )}
+                  {/* Show role badge in mobile */}
+                  {userRole && (
+                    <span className={`inline-block px-2 py-1 text-xs rounded-full mt-1 ${
+                      userRole === 'instructor' 
+                        ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' 
+                        : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                    }`}>
+                      {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
+                    </span>
+                  )}
                 </div>
               </div>
               
@@ -333,11 +416,22 @@ const Header = () => {
                   <a
                     key={index}
                     href={item.href}
-                    className="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300 hover:text-blue-700 dark:hover:text-blue-400 transition-colors duration-200 py-1"
-                    onClick={handleNavClick}
+                    onClick={item.name === 'Dashboard' ? (e) => {
+                      e.preventDefault();
+                      handleNavClick();
+                      if (!isLoadingRole) {
+                        window.location.href = getDashboardRoute();
+                      }
+                    } : handleNavClick}
+                    className={`flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300 hover:text-blue-700 dark:hover:text-blue-400 transition-colors duration-200 py-1 ${
+                      item.name === 'Dashboard' && isLoadingRole ? 'opacity-50' : ''
+                    }`}
                   >
                     <item.icon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                     {item.name}
+                    {item.name === 'Dashboard' && isLoadingRole && (
+                      <span className="text-xs text-gray-400">(Loading...)</span>
+                    )}
                   </a>
                 ))}
               </div>

@@ -127,3 +127,49 @@ export const getUsersByRole = async (role) => {
     throw error;
   }
 };
+
+export const getUserRole = async (userId) => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    const userSnap = await getDoc(userRef);
+    
+    if (userSnap.exists()) {
+      return userSnap.data().role;
+    } else {
+      console.log('No user found');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error getting user role:', error);
+    throw error;
+  }
+};
+
+export const hasCompletedOnboarding = async (userId) => {
+  try {
+    const onboardingRef = doc(db, 'onboarding', userId);
+    const onboardingSnap = await getDoc(onboardingRef);
+    
+    return onboardingSnap.exists();
+  } catch (error) {
+    console.error('Error checking onboarding status:', error);
+    return false;
+  }
+};
+export const getUserDashboardUrl = async (userId) => {
+  try {
+    const userRole = await getUserRole(userId);
+    
+    switch (userRole) {
+      case 'Instructor':
+        return '/Instuctors_dashboard';
+      case 'Learner':
+        return '/Leaners_dashboard';
+      default:
+        return '/signup';
+    }
+  } catch (error) {
+    console.error('Error getting dashboard URL:', error);
+    return '/signup';
+  }
+};  
