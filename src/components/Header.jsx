@@ -210,12 +210,15 @@ const Header = () => {
         <div className="flex items-center justify-between h-16 md:h-20">
           
           {/* Logo */}
+          <a href='/'>
           <div className="flex items-center">
-            <Home className="h-7 w-7 text-blue-600 dark:text-blue-400" />
-            <a href="/" className="ml-2 text-xl font-bold text-gray-800 dark:text-gray-200">
-              Property Premium
-            </a>
-          </div>
+            <img src="/logo.png" alt="Logo" className="h-10 md:h-12" />
+            <span className="ml-2 text-xs md:text-sm font-bold text-primary dark:text-accent">
+              Connecting Hands
+              <br />
+              Building Understanding
+            </span>
+          </div></a>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
