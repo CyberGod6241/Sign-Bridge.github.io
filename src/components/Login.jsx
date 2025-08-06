@@ -51,9 +51,9 @@ useEffect(() => {
           
           // Redirect to role-specific dashboard
           if (userRole === 'Instructor') {
-            window.location.href = '/Instuctors_dashboard';
+            window.location.href = '/Instructors_dashboard';
           } else if (userRole === 'Learner') {
-            window.location.href = '/Leaners_dashboard';
+            window.location.href = '/Learners_dashboard';
           } else {
             window.location.href = '/signup'; // fallback
           }
@@ -249,7 +249,7 @@ if (!userProfile || !userRole) {
       if (userRole === 'Instructor') {
         window.location.href = '/Instuctors_dashboard';
       } else{
-        window.location.href = '/Leaners_dashboard';
+        window.location.href = '/Learners_dashboard';
       }
     }, 2000);
     

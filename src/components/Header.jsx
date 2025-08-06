@@ -26,7 +26,7 @@ const Header = () => {
   // Get dashboard route based on user role
   const getDashboardRoute = () => {
     if (userRole === 'Instructor') {
-      return '/Instructors-dashboard';
+      return '/Instructors_dashboard';
     } else {
       return '/Learners_dashboard';
     }
