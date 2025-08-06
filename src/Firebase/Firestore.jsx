@@ -172,4 +172,4 @@ export const getUserDashboardUrl = async (userId) => {
     console.error('Error getting dashboard URL:', error);
     return '/signup';
   }
-};  
+};   
