@@ -7,7 +7,7 @@ import Dashboard from './components/Dashboard'
 
 import Signup from './components/SignUp'
 import Login from './components/Login'
-import Instructors_Dashboard from './Dashboard/Instuctors_Dashboard'
+import Instructors_Dashboard from './Dashboard/Instructors_Dashboard'
 import Learners_Dashboard from './Dashboard/Learners_Dashboard'
 
 
