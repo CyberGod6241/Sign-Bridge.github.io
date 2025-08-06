@@ -162,9 +162,9 @@ export const getUserDashboardUrl = async (userId) => {
     
     switch (userRole) {
       case 'Instructor':
-        return '/Instuctors_dashboard';
+        return '/Instructors_dashboard';
       case 'Learner':
-        return '/Leaners_dashboard';
+        return '/Learners_dashboard';
       default:
         return '/signup';
     }

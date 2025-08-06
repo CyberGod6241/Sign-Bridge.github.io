@@ -425,9 +425,9 @@ if (selectedRole === 'Instructor') {
 
 // WITH consistent URLs:
 if (selectedRole === 'Instructor') {
-  window.location.href = '/Instuctors_dashboard';
+  window.location.href = '/Instructors_dashboard';
 } else {
-  window.location.href = '/Leaners_dashboard';
+  window.location.href = '/Learners_dashboard';
 }
     
     // Redirect to appropriate dashboard based on role

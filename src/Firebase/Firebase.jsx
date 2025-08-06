@@ -305,7 +305,6 @@ export const deleteProduct = async (productId) => {
       deletedAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     });
-    
     // Update user's product count
     const userDocRef = doc(db, 'users', user.uid);
     await updateDoc(userDocRef, {
@@ -331,9 +330,6 @@ export const permanentlyDeleteProduct = async (productId) => {
     
     // First, verify the product belongs to the current user
     const productDoc = await getDoc(productDocRef);
-    if (!productDoc.exists()) {
-      throw new Error('Product not found');
-    }
     
     const productInfo = productDoc.data();
     if (productInfo.userId !== user.uid) {
