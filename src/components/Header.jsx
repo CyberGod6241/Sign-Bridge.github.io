@@ -28,7 +28,7 @@ const Header = () => {
     if (userRole === 'Instructor') {
       return '/Instructors-dashboard';
     } else {
-      return '/Learners-dashboard';
+      return '/Learners_dashboard';
     }
     
   };
