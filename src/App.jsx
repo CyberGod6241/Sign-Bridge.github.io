@@ -74,7 +74,7 @@ const App = () => {
 
   // Show loading spinner while checking authentication state
   if (isLoading) {
-    return <LoadingSpinner />;
+    return <></>;
   }
 
   return (

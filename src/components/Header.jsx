@@ -213,7 +213,7 @@ const Header = () => {
           <a href='/'>
           <div className="flex items-center">
             <img src="/logo.png" alt="Logo" className="h-10 md:h-12" />
-            <span className="ml-2 text-xs md:text-sm font-bold text-primary dark:text-accent">
+            <span className="ml-2 text-xs md:text-sm font-bold text-primary dark:text-white">
               Connecting Hands
               <br />
               Building Understanding
@@ -303,7 +303,7 @@ const Header = () => {
                   </div>
 
                   {/* Menu Items */}
-                  <div className="py-2">
+                  <div className="py-2 relative">
                     {profileMenuItems.map((item, index) => (
                       <a
                         key={index}
